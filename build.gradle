@@ -1,0 +1,132 @@
+//file:noinspection GroovyAssignabilityCheck
+//file:noinspection GroovyAccessibility
+//file:noinspection GradlePackageVersionRange
+//file:noinspection GroovyUnusedAssignment
+plugins {
+    id "fabric-loom" version "1.2-SNAPSHOT"
+    id "maven-publish"
+    id "io.github.juuxel.loom-quiltflower" version "1.+" // Quiltflower, a better decompiler
+    id "io.github.p03w.machete" version "1.+" // automatic jar compressing on build
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://mvn.devos.one/snapshots/" }
+    maven { url = "https://mvn.devos.one/#/snapshots/" }// Create, Porting Lib, Forge Tags, Milk Lib, Registrate
+    maven { url = "https://maven.quiltmc.org/repository/release" }
+    maven { url = "https://hephaestus.dev/release" }
+    maven { url = "https://api.modrinth.com/maven" }// LazyDFU
+    maven { url = "https://cursemaven.com" }// Forge Config API Port, Farmer's Delight
+    maven { url = "https://maven.parchmentmc.org" }// Parchment mappings
+    maven { url = "https://maven.fabricmc.net/" }
+    maven { url = "https://maven.tterrag.com/" }// Flywheel
+    maven { url = "https://storage.googleapis.com/devan-maven/" }
+    maven { url = "https://maven.shedaniel.me/" }// Cloth Config, REI
+    maven { url = "https://aperlambda.github.io/maven" }
+    maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
+    maven { url = "https://maven.kotlindiscord.com/repository/terraformers/" }
+    maven { url = "https://maven.terraformersmc.com/" }// Mod Menu
+    maven { url = "https://maven.cafeteria.dev/releases/" }
+    maven { url = "https://jitpack.io/" }// Mixin Extras, Fabric ASM
+    maven { url = "https://maven.gegy.dev" }
+    maven { url = "https://dvs1.progwml6.com/files/maven/" }// JEI
+    maven { url = "https://modmaven.dev" }
+    maven { url = "https://maven.gudenau.net" }
+    maven { url = "https://maven.blamejared.com/vazkii/botania/Botania/" }
+    maven { url = "https://maven.kyrptonaught.dev/" }
+    maven { url = "https://maven.jamieswhiteshirt.com/libs-release" }// Reach Entity Attributes
+    maven { url = "https://maven.quiltmc.org/repository/release" } // Quilt Mappings
+    maven {
+        name = "Fuzs Mod Resources"
+        url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+    }// Forge Config Api Port
+}
+
+dependencies {
+    // Setup
+    minecraft("com.mojang:minecraft:${minecraft_version}")
+    mappings("net.fabricmc:yarn:${yarn_mappings}:v2")
+    modImplementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+    // require dependencies to be the version compiled against or newer
+    Map<String, String> properties = new HashMap<>()
+    properties.put("version", version)
+//    properties.put("mod_id", mod_id)
+//    properties.put("archives_base_name", archives_base_name)
+
+    properties.forEach((k, v) -> inputs.property(k, v))
+
+    filesMatching("fabric.mod.json") { expand properties }
+}
+
+//machete {
+//    // disable machete locally for faster builds
+//    enabled = buildNumber != null
+//}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = Integer.parseInt(sourceCompatibility)
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        mavenLocal()
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
+}
+loom {
+    accessWidenerPath = file("src/main/resources/${mod_id}.accesswidener")
+    runs {
+        // This adds a new gradle task that runs the datagen API: "gradlew runDatagenClient"
+        datagenClient {
+            inherit client
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+            vmArg "-Dfabric-api.datagen.modid=${mod_id}"
+
+            runDir "build/datagen"
+        }
+    }
+}
+
+// Adds the generated files into the jar you distribute to players.
+sourceSets {
+    main {
+        resources {
+            srcDirs += ['src/main/generated']
+        }
+    }
+}

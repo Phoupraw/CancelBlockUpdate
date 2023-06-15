@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "cancelblockupdate",
+  "version": "${version}",
+  "name": "Cancel Block Update",
+  "description": "阻止方块更新、方块计划刻、随机刻、放置可行性检查、流体计划刻、铁轨自动转角。",
+  "authors": ["Phoupraw"],
+  "contact": {
+    "homepage": "https://www.mcmod.cn/class/5695.html",
+    "issues": "https://www.mcbbs.net/thread-1305805-1-1.html",
+    "_sources": ""
+  },
+  "license": "MIT",
+  "icon": "assets/cancelblockupdate/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["phoupraw.mcmod.cancelblockupdate.registry.CBUModInitializer"],
+    "client": ["phoupraw.mcmod.cancelblockupdate.registry.CBUClientModInitializer"],
+    "fabric-datagen": ["phoupraw.mcmod.cancelblockupdate.datagen.CBUDataGeneratorEntrypoint"]
+  },
+  "mixins": ["cancelblockupdate.mixins.json"],
+  "accessWidener": "cancelblockupdate.accesswidener",
+  "depends": {
+    "minecraft": ">=1.19",
+    "fabricloader": "*",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+    },
+    "modmenu": {
+      "links": {
+      }
+    }
+  }
+}
