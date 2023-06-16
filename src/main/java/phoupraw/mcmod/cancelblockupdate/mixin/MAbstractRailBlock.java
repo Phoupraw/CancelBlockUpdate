@@ -17,7 +17,7 @@ class MAbstractRailBlock {
 
 @Inject(method = "updateCurves", at = @At("HEAD"), cancellable = true)
 private void cancelUpdateCurves(BlockState state, World world, BlockPos pos, boolean notify, CallbackInfoReturnable<BlockState> cir) {
-    if (!CBUGameRules.CACHE.getOrDefault(world, false)) {
+    if (!CBUGameRules.get(world)) {
         cir.setReturnValue(state);
     }
 }

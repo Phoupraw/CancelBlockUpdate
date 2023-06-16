@@ -15,7 +15,7 @@ abstract class MFluidState {
 //以下是取消计划刻
 @Inject(method = "onScheduledTick", at = @At("HEAD"), cancellable = true)
 private void cancelScheduledTick(World world, BlockPos pos, CallbackInfo ci) {
-    if (!CBUGameRules.CACHE.getOrDefault(world, false)) {
+    if (!CBUGameRules.get(world)) {
         ci.cancel();
     }
 }

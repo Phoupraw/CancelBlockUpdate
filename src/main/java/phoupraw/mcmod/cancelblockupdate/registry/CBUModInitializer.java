@@ -3,6 +3,7 @@ package phoupraw.mcmod.cancelblockupdate.registry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
@@ -62,6 +63,13 @@ public void onInitialize() {
               blockState.getBlock().scheduledTick(blockState, world, pos, world.getRandom());
               return 1;
           })))*/));
+    ServerWorldEvents.LOAD.register((server, world) -> CBUGameRules.CACHE.put(world, server.getGameRules().getBoolean(CBUGameRules.KEY_OFF)));
+    //ServerChunkEvents.CHUNK_LOAD.register(new ServerChunkEvents.Load() {
+    //    @Override
+    //    public void onChunkLoad(ServerWorld world, WorldChunk chunk) {
+    //        CBUGameRules.CACHE.put(chunk, world.getServer().getGameRules().getBoolean(CBUGameRules.KEY_OFF));
+    //    }
+    //});
 }
 
 }
