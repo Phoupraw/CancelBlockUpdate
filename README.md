@@ -11,8 +11,8 @@
 
 添加了指令：
 
-- `/cancelblockupdate random <pos>` 触发pos处方块的随机刻。
-- `/cancelblockupdate schedule <pos>` 触发pos处方块的计划刻。
+- `/cancelblockupdate random &lt;pos&gt;` 触发pos处方块的随机刻。
+- `/cancelblockupdate schedule &lt;pos&gt;` 触发pos处方块的计划刻。
 
 建议搭配调整方块状态的调试棒`/give @p debug_stick`使用。
 
