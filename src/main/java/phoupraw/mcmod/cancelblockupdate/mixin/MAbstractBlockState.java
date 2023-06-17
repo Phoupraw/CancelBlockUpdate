@@ -3,7 +3,6 @@ package phoupraw.mcmod.cancelblockupdate.mixin;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.Instrument;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -11,9 +10,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,13 +19,6 @@ import phoupraw.mcmod.cancelblockupdate.registry.CBUGameRules;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
 abstract class MAbstractBlockState {
-
-@Shadow
-public abstract Block getBlock();
-
-@Shadow
-@Final
-private Instrument instrument;
 
 //以下是取消方块更新
 @Inject(method = "getStateForNeighborUpdate", at = @At("HEAD"), cancellable = true)
