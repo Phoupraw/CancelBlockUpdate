@@ -7,13 +7,10 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AfterPlayerChange;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.Load;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -22,9 +19,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
+import phoupraw.mcmod.cancelblockupdate.packet.BoolRulePacket;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @ApiStatus.Internal
 public final class CBUModInitializer implements ModInitializer {
@@ -50,15 +49,13 @@ public final class CBUModInitializer implements ModInitializer {
      @see AfterPlayerChange#afterChangeWorld
      */
     private static void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
-        List<PacketByteBuf> bufs = new LinkedList<>();
+        List<BoolRulePacket> packets = new LinkedList<>();
+        var server = Objects.requireNonNull(player.getServer(), "player=" + player);
         for (var key : CBURegistries.BOOL_RULE) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
-            buf.writeBoolean(origin.getGameRules().getBoolean(key));
-            bufs.add(buf);
+            packets.add(new BoolRulePacket(key, server.getGameRules().getBoolean(key)));
         }
-        for (PacketByteBuf buf : bufs) {
-            ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
+        for (var packet : packets) {
+            ServerPlayNetworking.send(player, packet);
         }
     }
 
@@ -106,18 +103,26 @@ public final class CBUModInitializer implements ModInitializer {
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(CBUModInitializer::afterChangeWorld);
         CommandRegistrationCallback.EVENT.register(CBUModInitializer::register);
         ServerWorldEvents.LOAD.register(CBUModInitializer::onWorldLoad);
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            List<PacketByteBuf> bufs = new LinkedList<>();
+        //ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+        //    List<PacketByteBuf> bufs = new LinkedList<>();
+        //    for (var key : CBURegistries.BOOL_RULE) {
+        //        PacketByteBuf buf = PacketByteBufs.create();
+        //        buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
+        //        buf.writeBoolean(server.getGameRules().getBoolean(key));
+        //        bufs.add(buf);
+        //    }
+        //    for (PacketByteBuf buf : bufs) {
+        //        ServerPlayNetworking.send(handler.player, CBUIdentifiers.CHANNEL, buf);
+        //    }
+        //});
+        ServerPlayNetworking.registerGlobalReceiver(CBUPacketTypes.CLIENT_JOIN, (packet, player, responseSender) -> {
+            List<BoolRulePacket> packets = new LinkedList<>();
+            var server = Objects.requireNonNull(player.getServer(), "player=" + player);
             for (var key : CBURegistries.BOOL_RULE) {
-                PacketByteBuf buf = PacketByteBufs.create();
-                buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
-                buf.writeBoolean(server.getGameRules().getBoolean(key));
-                bufs.add(buf);
+                packets.add(new BoolRulePacket(key, server.getGameRules().getBoolean(key)));
             }
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                for (PacketByteBuf buf : bufs) {
-                    ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
-                }
+            for (var p : packets) {
+                ServerPlayNetworking.send(player, p);
             }
         });
         //ServerChunkEvents.CHUNK_LOAD.register(new ServerChunkEvents.Load() {

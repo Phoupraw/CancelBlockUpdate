@@ -2,16 +2,17 @@ package phoupraw.mcmod.cancelblockupdate.registry;
 
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.*;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
+import phoupraw.mcmod.cancelblockupdate.packet.BoolRulePacket;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +46,9 @@ public final class CBUGameRules {
             for (ServerWorld world : server.getWorlds()) {
                 CACHES.get(getKey.get()).put(world, newValue);
             }
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeByte(CBURegistries.BOOL_RULE.getRawId(getKey.get()));
-            buf.writeBoolean(newValue);
+            BoolRulePacket packet = new BoolRulePacket(getKey.get(), newValue);
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
+                ServerPlayNetworking.send(player, packet);
             }
         };
     }
@@ -91,7 +90,9 @@ public final class CBUGameRules {
             value = serverWorldAccess.toServerWorld().getServer().getGameRules().getBoolean(key);
         } else {
             value = false;
-            CancelBlockUpdate.LOGGER.error("无法获取" + key + "的CACHE值！" + world);
+            StringWriter writer = new StringWriter();
+            new Throwable().printStackTrace(new PrintWriter(writer));
+            CancelBlockUpdate.LOGGER.error("无法获取" + key + "的CACHE值！" + world + System.lineSeparator() + writer);
         }
         cache.put(world, value);
         return value;
