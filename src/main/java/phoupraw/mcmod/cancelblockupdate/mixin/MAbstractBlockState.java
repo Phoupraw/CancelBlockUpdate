@@ -76,10 +76,18 @@ abstract class MAbstractBlockState {
         }
     }
 
+    //@Inject(method = "isReplaceable", at = @At("HEAD"), cancellable = true)
+    //private void notReplaceable(CallbackInfoReturnable<Boolean> cir) {
+    //    //World world = context.getWorld();
+    //    if (!CBUGameRules.get(CBUGameRules.CACHE_REPL, CBUGameRules.KEY_REPL, world) && !getRaycastShape(world, context.getBlockPos()).isEmpty()) {
+    //        cir.setReturnValue(false);
+    //    }
+    //}
     @Inject(method = "canReplace", at = @At("HEAD"), cancellable = true)
     private void cannotReplace(ItemPlacementContext context, CallbackInfoReturnable<Boolean> cir) {
         World world = context.getWorld();
-        if (!CBUGameRules.get(CBUGameRules.CACHE_REPL, CBUGameRules.KEY_REPL, world) && !getRaycastShape(world, context.getBlockPos()).isEmpty()) {
+        BlockPos pos = context.getBlockPos();
+        if (!CBUGameRules.get(CBUGameRules.REPLACE, world) && !world.getBlockState(pos).getRaycastShape(world, pos).isEmpty()) {
             cir.setReturnValue(false);
         }
     }
