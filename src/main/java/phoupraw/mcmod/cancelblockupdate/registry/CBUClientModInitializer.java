@@ -20,7 +20,12 @@ public final class CBUClientModInitializer implements ClientModInitializer {
  在玩家加入服务器时，给玩家添加频道监听器，让玩家能够解析服务端发来的信包，并由此同步游戏规则值。
  @see Join#onPlayReady */
 private static void onPlayReady(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
-    ClientPlayNetworking.registerReceiver(CBUIdentifiers.CHANNEL, (client1, handler1, buf, responseSender) -> CBUGameRules.CACHE.put(client1.world, buf.readBoolean()));
+    ClientPlayNetworking.registerReceiver(CBUIdentifiers.CHANNEL, (client1, handler1, buf, responseSender) -> {
+        switch (buf.readByte()) {
+            case CBUGameRules.CODE_OFF -> CBUGameRules.CACHE_OFF.put(client1.world, buf.readBoolean());
+            case CBUGameRules.CODE_REPL -> CBUGameRules.CACHE_REPL.put(client1.world, buf.readBoolean());
+        }
+    });
 }
 
 /**

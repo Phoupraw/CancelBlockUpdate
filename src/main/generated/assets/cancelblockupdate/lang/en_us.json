@@ -1,5 +1,6 @@
 {
-  "gamerule.cancelblockupdate:off": "Cancel Block Update: disable effects",
+  "gamerule.cancelblockupdate:no_replace": "Cancel Block Update: allow replace grass",
+  "gamerule.cancelblockupdate:off": "Cancel Block Update: disable all effects of the mod",
   "modmenu.descriptionTranslation.cancelblockupdate": "Cancel block updates, block schedule ticks, random ticks, place validation, fluid schedule ticks. Keep this mod on during world generation will generate lots of floating blocks. Switch this mod by game rule cancelblockupdate:off.",
   "modmenu.nameTranslation.cancelblockupdate": "Cancel Block Update"
 }

@@ -25,27 +25,34 @@ import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
 @ApiStatus.Internal
 public final class CBUModInitializer implements ModInitializer {
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
-private static void loadClasses() {
-    CBUGameRules.CACHE.hashCode();
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void loadClasses() {
+        CBUGameRules.CACHE_OFF.hashCode();
 
-}
+    }
 
-/**
- 在一个服务端世界被载入时，将其放入缓存{@link CBUGameRules#CACHE}。虽然说即使没有此方法，{@link CBUGameRules#get}也可以处理那些新加载的世界，但是还是用这个方法比较好。
- @see Load#onWorldLoad */
-private static void onWorldLoad(MinecraftServer server, ServerWorld world) {
-    CBUGameRules.CACHE.put(world, server.getGameRules().getBoolean(CBUGameRules.KEY_OFF));
-}
+    /**
+     在一个服务端世界被载入时，将其放入缓存{@link CBUGameRules#CACHE_OFF}。虽然说即使没有此方法，{@link CBUGameRules#getOff}也可以处理那些新加载的世界，但是还是用这个方法比较好。
+     @see Load#onWorldLoad
+     */
+    private static void onWorldLoad(MinecraftServer server, ServerWorld world) {
+        CBUGameRules.CACHE_OFF.put(world, server.getGameRules().getBoolean(CBUGameRules.KEY_OFF));
+    }
 
-/**
- 玩家转移到新世界后，客户端世界会被换新，导致缓存{@link CBUGameRules#CACHE}中的客户端世界失效，因此需要把新的客户端世界加入到缓存中。
- @see AfterPlayerChange#afterChangeWorld */
-private static void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
-    PacketByteBuf buf = PacketByteBufs.create();
-    buf.writeBoolean(CBUGameRules.CACHE.getOrDefault(origin, false));
-    ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
-}
+    /**
+     玩家转移到新世界后，客户端世界会被换新，导致缓存{@link CBUGameRules#CACHE_OFF}中的客户端世界失效，因此需要把新的客户端世界加入到缓存中。
+     @see AfterPlayerChange#afterChangeWorld
+     */
+    private static void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeByte(CBUGameRules.CODE_OFF);
+        buf.writeBoolean(CBUGameRules.CACHE_OFF.getOrDefault(origin, false));
+        ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
+        buf = PacketByteBufs.create();
+        buf.writeByte(CBUGameRules.CODE_REPL);
+        buf.writeBoolean(CBUGameRules.CACHE_REPL.getOrDefault(origin, false));
+        ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
+    }
 
 /**
  注册指令，目前只有schedule和random两条子命令。
