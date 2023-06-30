@@ -40,7 +40,7 @@ public final class CBUClientModInitializer implements ClientModInitializer {
             var key = packet.key;
             boolean value = packet.value;
             CBUGameRules.CACHES.get(key).put(player.getWorld(), value);
-            //CancelBlockUpdate.LOGGER.info(player.getWorld() + " " + key + " " + value);
+            //CancelBlockUpdate.LOGGER.debug(player.getWorld() + " " + key + " " + value);
         });
     }
 
