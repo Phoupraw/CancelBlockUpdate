@@ -30,6 +30,8 @@
   },
   "custom": {
     "loom:injected_interfaces": {
+      "net/minecraft/class_1928$class_4315": ["phoupraw/mcmod/cancelblockupdate/inject/IGameRules_Rule"],
+      "net/minecraft/class_1928$class_4314": ["phoupraw/mcmod/cancelblockupdate/inject/IGameRules_Type"]
     },
     "modmenu": {
       "links": {

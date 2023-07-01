@@ -14,11 +14,9 @@ import phoupraw.mcmod.cancelblockupdate.packet.BoolRulePacket;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 public final class CBUGameRules {
 
@@ -28,30 +26,43 @@ public final class CBUGameRules {
      本模组修改的所有方法的形参都包含{@link World}、{@link WorldAccess}、{@link WorldView}等，所以以这个作为缓存的键比较合适。
      */
     public static final Map<GameRules.Key<GameRules.BooleanRule>, Map<WorldView, Boolean>> CACHES;
-    public static final GameRules.Key<GameRules.BooleanRule> OFF = GameRuleRegistry.register(CBUIdentifiers.OFF.toString(), GameRules.Category.UPDATES, GameRuleFactory.createBooleanRule(false, newCallback(() -> CBUGameRules.OFF)));
-    public static final GameRules.Key<GameRules.BooleanRule> REPLACE = GameRuleRegistry.register(CBUIdentifiers.REPLACE.toString(), GameRules.Category.UPDATES, GameRuleFactory.createBooleanRule(false, newCallback(() -> CBUGameRules.REPLACE)));
+    public static final BiConsumer<MinecraftServer, GameRules.BooleanRule> ON_CHANGE = CBUGameRules::onChange;
+    public static final GameRules.Key<GameRules.BooleanRule> OFF = GameRuleRegistry.register(CBUIdentifiers.OFF.toString(), GameRules.Category.UPDATES, GameRuleFactory.createBooleanRule(false, ON_CHANGE));
+    public static final GameRules.Key<GameRules.BooleanRule> REPLACE = GameRuleRegistry.register(CBUIdentifiers.REPLACE.toString(), GameRules.Category.UPDATES, GameRuleFactory.createBooleanRule(false, ON_CHANGE));
 
     static {
         Registry.register(CBURegistries.BOOL_RULE, CBUIdentifiers.OFF, OFF);
         Registry.register(CBURegistries.BOOL_RULE, CBUIdentifiers.REPLACE, REPLACE);
         Map<GameRules.Key<GameRules.BooleanRule>, Map<WorldView, Boolean>> map = new HashMap<>();
-        for (var key : List.of(OFF, REPLACE)) {
+        for (var key : CBURegistries.BOOL_RULE) {
             map.put(key, new WeakHashMap<>());
         }
         CACHES = map;
     }
-    public static BiConsumer<MinecraftServer, GameRules.BooleanRule> newCallback(Supplier<GameRules.Key<GameRules.BooleanRule>> getKey) {
-        return (server, booleanRule) -> {
-            boolean newValue = booleanRule.get();
-            for (ServerWorld world : server.getWorlds()) {
-                CACHES.get(getKey.get()).put(world, newValue);
-            }
-            BoolRulePacket packet = new BoolRulePacket(getKey.get(), newValue);
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                ServerPlayNetworking.send(player, packet);
-            }
-        };
+    public static void onChange(MinecraftServer server, GameRules.BooleanRule booleanRule) {
+        boolean newValue = booleanRule.get();
+        GameRules.Key<GameRules.BooleanRule> key = booleanRule.getType().getKey();
+        for (ServerWorld world : server.getWorlds()) {
+            CACHES.get(key).put(world, newValue);
+        }
+        BoolRulePacket packet = new BoolRulePacket(key, newValue);
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            ServerPlayNetworking.send(player, packet);
+        }
     }
+
+    //public static BiConsumer<MinecraftServer, GameRules.BooleanRule> newCallback(Supplier<GameRules.Key<GameRules.BooleanRule>> getKey) {
+    //    return (server, booleanRule) -> {
+    //        boolean newValue = booleanRule.get();
+    //        for (ServerWorld world : server.getWorlds()) {
+    //            CACHES.get(getKey.get()).put(world, newValue);
+    //        }
+    //        BoolRulePacket packet = new BoolRulePacket(getKey.get(), newValue);
+    //        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+    //            ServerPlayNetworking.send(player, packet);
+    //        }
+    //    };
+    //}
     //public static BiConsumer<MinecraftServer, GameRules.BooleanRule> newCallback(Map<WorldView, Boolean> cache, int code) {
     //    return (server, booleanRule) -> {
     //        booleanRule
@@ -101,5 +112,23 @@ public final class CBUGameRules {
 
     private CBUGameRules() {
     }
+
+    //public static class BoolRuleCallback implements BiConsumer<MinecraftServer, GameRules.BooleanRule> {
+    //
+    //    public GameRules.Key<GameRules.BooleanRule> key;
+    //
+    //    @Override
+    //    public void accept(MinecraftServer server, GameRules.BooleanRule booleanRule) {
+    //        boolean newValue = booleanRule.get();
+    //        for (ServerWorld world : server.getWorlds()) {
+    //            CACHES.get(key).put(world, newValue);
+    //        }
+    //        BoolRulePacket packet = new BoolRulePacket(key, newValue);
+    //        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+    //            ServerPlayNetworking.send(player, packet);
+    //        }
+    //    }
+    //
+    //}
 
 }

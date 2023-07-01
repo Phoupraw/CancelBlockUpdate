@@ -2,7 +2,15 @@
   "required": true,
   "package": "phoupraw.mcmod.cancelblockupdate.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": ["MAbstractBlockState", "MAbstractRailBlock", "MFluidState", "MixinItems"],
+  "mixins": [
+    "MAbstractBlockState",
+    "MAbstractRailBlock",
+    "MFluidState",
+    "MGameRules",
+    "MGameRules_Rule",
+    "MGameRules_Type",
+    "MixinItems"
+  ],
   "client": [
   ],
   "injectors": {

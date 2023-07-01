@@ -42,7 +42,7 @@ public final class CBUClientModInitializer implements ClientModInitializer {
             boolean value = packet.value;
             CBUGameRules.CACHES.get(key).put(player.getWorld(), value);
             //LOGGER.info(LogManager.getRootLogger().getLevel());
-            CancelBlockUpdate.LOGGER.debug((Object) (player.getWorld() + " " + key + " " + value));
+            CancelBlockUpdate.LOGGER.debug((Object) (player.getWorld() + "的" + key + "已改为" + value));
         });
     }
 
