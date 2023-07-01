@@ -3,7 +3,7 @@
   "id": "cancelblockupdate",
   "version": "${version}",
   "name": "Cancel Block Update",
-  "description": "阻止方块更新、方块计划刻、随机刻、放置可行性检查、流体计划刻、铁轨自动转角。",
+  "description": "阻止方块更新、方块计划刻、随机刻、放置可行性检查、流体计划刻、铁轨自动转角。阻止草和蕨等植物被替换。",
   "authors": ["Phoupraw"],
   "contact": {
     "homepage": "https://www.mcmod.cn/class/5695.html",
@@ -30,8 +30,8 @@
   },
   "custom": {
     "loom:injected_interfaces": {
-      "net/minecraft/class_1928$class_4315": ["phoupraw/mcmod/cancelblockupdate/inject/IGameRules_Rule"],
-      "net/minecraft/class_1928$class_4314": ["phoupraw/mcmod/cancelblockupdate/inject/IGameRules_Type"]
+      "net/minecraft/class_1928\u0024class_4315": ["phoupraw/mcmod/cancelblockupdate/inject/IGameRules_Rule"],
+      "net/minecraft/class_1928\u0024class_4314": ["phoupraw/mcmod/cancelblockupdate/inject/IGameRules_Type"]
     },
     "modmenu": {
       "links": {

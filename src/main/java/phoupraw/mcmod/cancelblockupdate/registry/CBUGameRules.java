@@ -34,21 +34,15 @@ public final class CBUGameRules {
         Registry.register(CBURegistries.BOOL_RULE, CBUIdentifiers.OFF, OFF);
         Registry.register(CBURegistries.BOOL_RULE, CBUIdentifiers.REPLACE, REPLACE);
         Map<GameRules.Key<GameRules.BooleanRule>, Map<WorldView, Boolean>> map = new HashMap<>();
-        for (var key : CBURegistries.BOOL_RULE) {
-            map.put(key, new WeakHashMap<>());
-        }
+        for (var key : CBURegistries.BOOL_RULE) map.put(key, new WeakHashMap<>());
         CACHES = map;
     }
     public static void onChange(MinecraftServer server, GameRules.BooleanRule booleanRule) {
         boolean newValue = booleanRule.get();
         GameRules.Key<GameRules.BooleanRule> key = booleanRule.getType().getKey();
-        for (ServerWorld world : server.getWorlds()) {
-            CACHES.get(key).put(world, newValue);
-        }
+        for (ServerWorld world : server.getWorlds()) CACHES.get(key).put(world, newValue);
         BoolRulePacket packet = new BoolRulePacket(key, newValue);
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            ServerPlayNetworking.send(player, packet);
-        }
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) ServerPlayNetworking.send(player, packet);
     }
 
     //public static BiConsumer<MinecraftServer, GameRules.BooleanRule> newCallback(Supplier<GameRules.Key<GameRules.BooleanRule>> getKey) {
@@ -80,9 +74,7 @@ public final class CBUGameRules {
     //}
 
     /**
-     从{@link #}中获取游戏规则的值，如果为{@code null}，如果为{@link ServerWorldAccess}，则会从服务器获取规则的值，否则直接为{@code false}，将其添加到缓存中。
-     @param world 键
-     @return 游戏规则值。
+     @see #get
      */
     public static boolean getOff(WorldView world) {
         return get(OFF, world);
@@ -103,7 +95,7 @@ public final class CBUGameRules {
             value = false;
             StringWriter writer = new StringWriter();
             new Throwable().printStackTrace(new PrintWriter(writer));
-            CancelBlockUpdate.LOGGER.error("无法获取" + key + "的CACHE值！" + world + System.lineSeparator() + writer);
+            CancelBlockUpdate.LOGGER.error("无法获取" + key + "的CACHE值！已设为false。" + world + System.lineSeparator() + writer);
             //CancelBlockUpdate.LOGGER.catching(new IllegalStateException());
         }
         cache.put(world, value);

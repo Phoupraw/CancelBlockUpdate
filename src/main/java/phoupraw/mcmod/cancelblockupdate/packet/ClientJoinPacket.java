@@ -10,7 +10,7 @@ public class ClientJoinPacket implements FabricPacket {
     public static final ClientJoinPacket INSTANCE = new ClientJoinPacket();
 
     public static ClientJoinPacket of(PacketByteBuf buf) {
-        return new ClientJoinPacket();
+        return INSTANCE;
     }
 
     @Override
