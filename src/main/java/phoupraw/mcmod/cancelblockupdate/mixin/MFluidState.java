@@ -12,12 +12,12 @@ import phoupraw.mcmod.cancelblockupdate.registry.CBUGameRules;
 @Mixin(FluidState.class)
 abstract class MFluidState {
 
-//以下是取消计划刻
-@Inject(method = "onScheduledTick", at = @At("HEAD"), cancellable = true)
-private void cancelScheduledTick(World world, BlockPos pos, CallbackInfo ci) {
-    if (!CBUGameRules.getOff(world)) {
-        ci.cancel();
+    //以下是取消计划刻
+    @Inject(method = "onScheduledTick", at = @At("HEAD"), cancellable = true)
+    private void cancelScheduledTick(World world, BlockPos pos, CallbackInfo ci) {
+        if (!CBUGameRules.getOff(world)) {
+            ci.cancel();
+        }
     }
-}
 
 }

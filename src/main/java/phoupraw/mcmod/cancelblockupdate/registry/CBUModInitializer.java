@@ -65,36 +65,26 @@ public final class CBUModInitializer implements ModInitializer {
      */
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal(CancelBlockUpdate.MOD_ID)
-            .then(CommandManager.literal("schedule")
-              .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                .executes(context -> {
-                    BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-                    ServerWorld world = context.getSource().getWorld();
-                    BlockState blockState = world.getBlockState(pos);
-                    //noinspection deprecation
-                    blockState.getBlock().scheduledTick(blockState, world, pos, world.getRandom());
-                    return 1;
-                })))
-            .then(CommandManager.literal("random")
-              .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                .executes(context -> {
-                    BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-                    ServerWorld world = context.getSource().getWorld();
-                    BlockState blockState = world.getBlockState(pos);
-                    //noinspection deprecation
-                    blockState.getBlock().randomTick(blockState, world, pos, world.getRandom());
-                    return 1;
-                })))
-      /*.then(CommandManager.literal("place")
-        .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-          .executes(context -> {
-              BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-              ServerWorld world = context.getSource().getWorld();
-              BlockState blockState = world.getBlockState(pos);
-              blockState.getBlock().getPlacementState(new ItemPlacementContext(world,context.getSource().getPlayer(), Hand.MAIN_HAND,blockState.getBlock().asItem().getDefaultStack(),new BlockHitResult(Vec3d.ofCenter(pos),)))
-              blockState.getBlock().scheduledTick(blockState, world, pos, world.getRandom());
-              return 1;
-          })))*/);
+          .then(CommandManager.literal("schedule")
+            .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+              .executes(context -> {
+                  BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                  ServerWorld world = context.getSource().getWorld();
+                  BlockState blockState = world.getBlockState(pos);
+                  //noinspection deprecation
+                  blockState.getBlock().scheduledTick(blockState, world, pos, world.getRandom());
+                  return 1;
+              })))
+          .then(CommandManager.literal("random")
+            .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+              .executes(context -> {
+                  BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                  ServerWorld world = context.getSource().getWorld();
+                  BlockState blockState = world.getBlockState(pos);
+                  //noinspection deprecation
+                  blockState.getBlock().randomTick(blockState, world, pos, world.getRandom());
+                  return 1;
+              }))));
     }
 
     @Override
@@ -103,18 +93,6 @@ public final class CBUModInitializer implements ModInitializer {
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(CBUModInitializer::afterChangeWorld);
         CommandRegistrationCallback.EVENT.register(CBUModInitializer::register);
         ServerWorldEvents.LOAD.register(CBUModInitializer::onWorldLoad);
-        //ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-        //    List<PacketByteBuf> bufs = new LinkedList<>();
-        //    for (var key : CBURegistries.BOOL_RULE) {
-        //        PacketByteBuf buf = PacketByteBufs.create();
-        //        buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
-        //        buf.writeBoolean(server.getGameRules().getBoolean(key));
-        //        bufs.add(buf);
-        //    }
-        //    for (PacketByteBuf buf : bufs) {
-        //        ServerPlayNetworking.send(handler.player, CBUIdentifiers.CHANNEL, buf);
-        //    }
-        //});
         ServerPlayNetworking.registerGlobalReceiver(CBUPacketTypes.CLIENT_JOIN, (packet, player, responseSender) -> {
             List<BoolRulePacket> packets = new LinkedList<>();
             var server = Objects.requireNonNull(player.getServer(), "player=" + player);
@@ -125,12 +103,6 @@ public final class CBUModInitializer implements ModInitializer {
                 ServerPlayNetworking.send(player, p);
             }
         });
-        //ServerChunkEvents.CHUNK_LOAD.register(new ServerChunkEvents.Load() {
-        //    @Override
-        //    public void onChunkLoad(ServerWorld world, WorldChunk chunk) {
-        //        CBUGameRules.CACHE.put(chunk, world.getServer().getGameRules().getBoolean(CBUGameRules.KEY_OFF));
-        //    }
-        //});
     }
 
 }

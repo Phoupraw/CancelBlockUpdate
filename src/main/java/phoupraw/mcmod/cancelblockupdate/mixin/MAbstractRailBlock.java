@@ -15,11 +15,11 @@ import phoupraw.mcmod.cancelblockupdate.registry.CBUGameRules;
 @Mixin(AbstractRailBlock.class)
 class MAbstractRailBlock {
 
-@Inject(method = "updateCurves", at = @At("HEAD"), cancellable = true)
-private void cancelUpdateCurves(BlockState state, World world, BlockPos pos, boolean notify, CallbackInfoReturnable<BlockState> cir) {
-    if (!CBUGameRules.getOff(world)) {
-        cir.setReturnValue(state);
+    @Inject(method = "updateCurves", at = @At("HEAD"), cancellable = true)
+    private void cancelUpdateCurves(BlockState state, World world, BlockPos pos, boolean notify, CallbackInfoReturnable<BlockState> cir) {
+        if (!CBUGameRules.getOff(world)) {
+            cir.setReturnValue(state);
+        }
     }
-}
 
 }

@@ -45,34 +45,6 @@ public final class CBUGameRules {
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) ServerPlayNetworking.send(player, packet);
     }
 
-    //public static BiConsumer<MinecraftServer, GameRules.BooleanRule> newCallback(Supplier<GameRules.Key<GameRules.BooleanRule>> getKey) {
-    //    return (server, booleanRule) -> {
-    //        boolean newValue = booleanRule.get();
-    //        for (ServerWorld world : server.getWorlds()) {
-    //            CACHES.get(getKey.get()).put(world, newValue);
-    //        }
-    //        BoolRulePacket packet = new BoolRulePacket(getKey.get(), newValue);
-    //        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-    //            ServerPlayNetworking.send(player, packet);
-    //        }
-    //    };
-    //}
-    //public static BiConsumer<MinecraftServer, GameRules.BooleanRule> newCallback(Map<WorldView, Boolean> cache, int code) {
-    //    return (server, booleanRule) -> {
-    //        booleanRule
-    //        boolean newValue = booleanRule.get();
-    //        for (ServerWorld world : server.getWorlds()) {
-    //            cache.put(world, newValue);
-    //        }
-    //        PacketByteBuf buf = PacketByteBufs.create();
-    //        buf.writeByte(code);
-    //        buf.writeBoolean(newValue);
-    //        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-    //            ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
-    //        }
-    //    };
-    //}
-
     /**
      @see #get
      */
@@ -104,23 +76,5 @@ public final class CBUGameRules {
 
     private CBUGameRules() {
     }
-
-    //public static class BoolRuleCallback implements BiConsumer<MinecraftServer, GameRules.BooleanRule> {
-    //
-    //    public GameRules.Key<GameRules.BooleanRule> key;
-    //
-    //    @Override
-    //    public void accept(MinecraftServer server, GameRules.BooleanRule booleanRule) {
-    //        boolean newValue = booleanRule.get();
-    //        for (ServerWorld world : server.getWorlds()) {
-    //            CACHES.get(key).put(world, newValue);
-    //        }
-    //        BoolRulePacket packet = new BoolRulePacket(key, newValue);
-    //        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-    //            ServerPlayNetworking.send(player, packet);
-    //        }
-    //    }
-    //
-    //}
 
 }

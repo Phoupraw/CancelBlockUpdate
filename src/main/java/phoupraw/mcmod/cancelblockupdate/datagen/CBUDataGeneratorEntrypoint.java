@@ -9,9 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class CBUDataGeneratorEntrypoint implements DataGeneratorEntrypoint {
 
-    public CBUDataGeneratorEntrypoint() {
-    }
-
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator g) {
         var pack = g.createPack();
