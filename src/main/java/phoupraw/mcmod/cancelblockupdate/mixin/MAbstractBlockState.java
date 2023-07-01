@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
 import phoupraw.mcmod.cancelblockupdate.registry.CBUGameRules;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
@@ -86,7 +85,12 @@ abstract class MAbstractBlockState {
     //}
     @Inject(method = "canReplace", at = @At("HEAD"), cancellable = true)
     private void setCanReplace(ItemPlacementContext context, CallbackInfoReturnable<Boolean> cir) {
-        CancelBlockUpdate.setCanReplace(context, cir);
+        World world = context.getWorld();
+        BlockPos pos = context.getBlockPos();
+        VoxelShape shape = world.getBlockState(pos).getOutlineShape(world, pos);
+        if (!CBUGameRules.get(CBUGameRules.REPLACE, world) && !shape.isEmpty()) {
+            cir.setReturnValue(false);
+        }
     }
 
 }

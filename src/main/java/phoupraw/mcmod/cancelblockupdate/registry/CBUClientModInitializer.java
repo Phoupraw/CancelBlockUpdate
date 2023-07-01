@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.jetbrains.annotations.ApiStatus;
+import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
 import phoupraw.mcmod.cancelblockupdate.packet.ClientJoinPacket;
 
 @ApiStatus.Internal
@@ -40,7 +41,8 @@ public final class CBUClientModInitializer implements ClientModInitializer {
             var key = packet.key;
             boolean value = packet.value;
             CBUGameRules.CACHES.get(key).put(player.getWorld(), value);
-            //CancelBlockUpdate.LOGGER.debug(player.getWorld() + " " + key + " " + value);
+            //LOGGER.info(LogManager.getRootLogger().getLevel());
+            CancelBlockUpdate.debug(player.getWorld() + " " + key + " " + value);
         });
     }
 

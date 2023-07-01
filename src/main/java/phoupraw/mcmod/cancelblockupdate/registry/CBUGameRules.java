@@ -93,6 +93,7 @@ public final class CBUGameRules {
             StringWriter writer = new StringWriter();
             new Throwable().printStackTrace(new PrintWriter(writer));
             CancelBlockUpdate.LOGGER.error("无法获取" + key + "的CACHE值！" + world + System.lineSeparator() + writer);
+            //CancelBlockUpdate.LOGGER.catching(new IllegalStateException());
         }
         cache.put(world, value);
         return value;
