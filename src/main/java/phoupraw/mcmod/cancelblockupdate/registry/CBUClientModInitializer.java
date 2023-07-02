@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
 
@@ -22,8 +23,9 @@ public final class CBUClientModInitializer implements ClientModInitializer {
             var key = CBURegistries.BOOL_RULE.get(buf.readByte());
             boolean value = buf.readBoolean();
             var player = Objects.requireNonNull(client.player, client.toString());
-            CBUGameRules.CACHES.get(key).put(player.getWorld(), value);
-            CancelBlockUpdate.LOGGER.debug((Object) (player.getWorld() + "的" + key + "已改为" + value));
+            World world = player.getWorld();
+            CBUGameRules.CACHES.get(key).put(world, value);
+            CancelBlockUpdate.LOGGER.debug((Object) (world + "@" + System.identityHashCode(world) + "的" + key + "已改为" + value));
         });
     }
 

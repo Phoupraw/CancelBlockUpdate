@@ -2,7 +2,7 @@ package phoupraw.mcmod.cancelblockupdate.datagen;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
 import phoupraw.mcmod.cancelblockupdate.registry.CBUGameRules;
@@ -10,8 +10,8 @@ import phoupraw.mcmod.cancelblockupdate.registry.CBUGameRules;
 @Environment(EnvType.CLIENT)
 final class Chinese extends FabricLanguageProvider {
 
-    Chinese(FabricDataOutput dataOutput) {
-        super(dataOutput, "zh_cn");
+    Chinese(FabricDataGenerator dataGenerator) {
+        super(dataGenerator, "zh_cn");
     }
 
     @Override

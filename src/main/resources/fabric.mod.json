@@ -21,7 +21,7 @@
   "mixins": ["cancelblockupdate.mixins.json"],
   "accessWidener": "cancelblockupdate.accesswidener",
   "depends": {
-    "minecraft": ">=1.19",
+    "minecraft": ">=1.19 <=1.19.2",
     "fabricloader": "*",
     "fabric-api": "*"
   },

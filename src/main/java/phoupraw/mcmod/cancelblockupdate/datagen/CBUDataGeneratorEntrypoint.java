@@ -11,10 +11,9 @@ public final class CBUDataGeneratorEntrypoint implements DataGeneratorEntrypoint
 
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator g) {
-        var pack = g.createPack();
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            pack.addProvider(Chinese::new);
-            pack.addProvider(English::new);
+            g.addProvider(new Chinese(g));
+            g.addProvider(new English(g));
         }
     }
 
