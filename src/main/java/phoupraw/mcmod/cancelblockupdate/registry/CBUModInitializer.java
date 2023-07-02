@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AfterPlayerChange;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.Load;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -21,7 +20,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
-import phoupraw.mcmod.cancelblockupdate.packet.BoolRulePacket;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,22 +59,6 @@ public final class CBUModInitializer implements ModInitializer {
     }
 
     /**
-     玩家转移到新世界后，客户端世界会被换新，导致缓存中的客户端世界失效，因此需要把新的客户端世界加入到缓存中。
-     @see AfterPlayerChange#afterChangeWorld
-     @see CBUPacketTypes
-     */
-    private static void afterChangeWorld_1_20(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
-        List<BoolRulePacket> packets = new LinkedList<>();
-        var server = Objects.requireNonNull(player.getServer(), "player=" + player);
-        for (var key : CBURegistries.BOOL_RULE) {
-            packets.add(new BoolRulePacket(key, server.getGameRules().getBoolean(key)));
-        }
-        for (var packet : packets) {
-            ServerPlayNetworking.send(player, packet);
-        }
-    }
-
-    /**
      注册指令，目前只有schedule和random两条子命令。
      @see CommandRegistrationCallback#register
      */
@@ -102,23 +84,6 @@ public final class CBUModInitializer implements ModInitializer {
                   blockState.getBlock().randomTick(blockState, world, pos, world.getRandom());
                   return 1;
               }))));
-    }
-
-    /**
-     @see CBUPacketTypes
-     */
-    @SuppressWarnings("unused")
-    private static void registerGlobalReceiver_1_20() {
-        ServerPlayNetworking.registerGlobalReceiver(CBUPacketTypes.CLIENT_JOIN, (packet, player, responseSender) -> {
-            List<BoolRulePacket> packets = new LinkedList<>();
-            var server = Objects.requireNonNull(player.getServer(), "player=" + player);
-            for (var key : CBURegistries.BOOL_RULE) {
-                packets.add(new BoolRulePacket(key, server.getGameRules().getBoolean(key)));
-            }
-            for (var p : packets) {
-                ServerPlayNetworking.send(player, p);
-            }
-        });
     }
 
     @Override

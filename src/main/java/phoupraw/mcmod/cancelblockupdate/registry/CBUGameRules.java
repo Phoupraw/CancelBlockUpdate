@@ -11,7 +11,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.*;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
-import phoupraw.mcmod.cancelblockupdate.packet.BoolRulePacket;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -49,18 +48,6 @@ public final class CBUGameRules {
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
         }
-    }
-
-    /**
-     @see CBUPacketTypes
-     */
-    @SuppressWarnings("unused")
-    public static void onChange_1_20(MinecraftServer server, GameRules.BooleanRule booleanRule) {
-        boolean newValue = booleanRule.get();
-        GameRules.Key<GameRules.BooleanRule> key = booleanRule.getType().getKey();
-        for (ServerWorld world : server.getWorlds()) CACHES.get(key).put(world, newValue);
-        BoolRulePacket packet = new BoolRulePacket(key, newValue);
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) ServerPlayNetworking.send(player, packet);
     }
 
     /**
