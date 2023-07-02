@@ -5,15 +5,21 @@
 
 # 取消方块更新
 
-取消方块更新、方块计划刻、随机刻、流体计划刻，允许无条件放置方块。
+**【警告】**在世界生成时启用本模组的效果可能会产生大量浮空方块，如果想生成正常的世界，请提前修改游戏规则。
 
-添加了一条游戏规则`cancelblockupdate:off`：为false时，取消所有更新；为true时，允许所有更新。
-
-添加了指令：
-
-- `/cancelblockupdate random &lt;pos&gt;` 触发pos处方块的随机刻。
-- `/cancelblockupdate schedule &lt;pos&gt;` 触发pos处方块的计划刻。
-
-建议搭配调整方块状态的调试棒`/give @p debug_stick`使用。
+取消方块更新、方块计划刻、随机刻和流体计划刻，允许无条件放置方块。
 
 用于建造特殊建筑、制作和测试特殊地图。
+
+## 新增游戏规则
+
+- `cancelblockupdate:off`：为`false`时，取消所有更新；为`true`即原版；默认为`false`。
+
+- `cancelblockupdate:replace`：为`false`时，草、蕨等方块不能被直接替换；为`true`即原版；默认为`false`。
+
+## 新增指令
+
+- `/cancelblockupdate random <pos>`：触发`pos`处方块的随机刻。
+
+- `/cancelblockupdate schedule <pos>`：触发`pos`处方块的计划刻。
+  建议搭配调整方块状态的调试棒使用。
