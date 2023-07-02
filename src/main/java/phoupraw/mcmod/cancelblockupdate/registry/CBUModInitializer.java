@@ -7,10 +7,12 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AfterPlayerChange;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.Load;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -44,11 +46,26 @@ public final class CBUModInitializer implements ModInitializer {
         }
     }
 
+    private static void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
+        List<PacketByteBuf> bufs = new LinkedList<>();
+        var server = Objects.requireNonNull(player.getServer(), "player=" + player);
+        for (var key : CBURegistries.BOOL_RULE) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
+            buf.writeBoolean(server.getGameRules().getBoolean(key));
+            bufs.add(buf);
+        }
+        for (var buf : bufs) {
+            ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
+        }
+    }
+
     /**
      玩家转移到新世界后，客户端世界会被换新，导致缓存中的客户端世界失效，因此需要把新的客户端世界加入到缓存中。
      @see AfterPlayerChange#afterChangeWorld
+     @see CBUPacketTypes
      */
-    private static void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
+    private static void afterChangeWorld_1_20(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
         List<BoolRulePacket> packets = new LinkedList<>();
         var server = Objects.requireNonNull(player.getServer(), "player=" + player);
         for (var key : CBURegistries.BOOL_RULE) {
@@ -87,12 +104,11 @@ public final class CBUModInitializer implements ModInitializer {
               }))));
     }
 
-    @Override
-    public void onInitialize() {
-        loadClasses();
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(CBUModInitializer::afterChangeWorld);
-        CommandRegistrationCallback.EVENT.register(CBUModInitializer::register);
-        ServerWorldEvents.LOAD.register(CBUModInitializer::onWorldLoad);
+    /**
+     @see CBUPacketTypes
+     */
+    @SuppressWarnings("unused")
+    private static void registerGlobalReceiver_1_20() {
         ServerPlayNetworking.registerGlobalReceiver(CBUPacketTypes.CLIENT_JOIN, (packet, player, responseSender) -> {
             List<BoolRulePacket> packets = new LinkedList<>();
             var server = Objects.requireNonNull(player.getServer(), "player=" + player);
@@ -101,6 +117,26 @@ public final class CBUModInitializer implements ModInitializer {
             }
             for (var p : packets) {
                 ServerPlayNetworking.send(player, p);
+            }
+        });
+    }
+
+    @Override
+    public void onInitialize() {
+        loadClasses();
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(CBUModInitializer::afterChangeWorld);
+        CommandRegistrationCallback.EVENT.register(CBUModInitializer::register);
+        ServerWorldEvents.LOAD.register(CBUModInitializer::onWorldLoad);
+        ServerPlayNetworking.registerGlobalReceiver(CBUIdentifiers.CHANNEL, (server, player, handler, emptyBuf, responseSender) -> {
+            List<PacketByteBuf> bufs = new LinkedList<>();
+            for (var key : CBURegistries.BOOL_RULE) {
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
+                buf.writeBoolean(server.getGameRules().getBoolean(key));
+                bufs.add(buf);
+            }
+            for (var buf : bufs) {
+                responseSender.sendPacket(CBUIdentifiers.CHANNEL, buf);
             }
         });
     }

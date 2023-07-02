@@ -8,7 +8,8 @@ import phoupraw.mcmod.cancelblockupdate.registry.CBUPacketTypes;
 import phoupraw.mcmod.cancelblockupdate.registry.CBURegistries;
 
 import java.util.Objects;
-
+/**
+ @see CBUPacketTypes */
 public class BoolRulePacket implements FabricPacket {
 
     public static BoolRulePacket of(PacketByteBuf buf) {

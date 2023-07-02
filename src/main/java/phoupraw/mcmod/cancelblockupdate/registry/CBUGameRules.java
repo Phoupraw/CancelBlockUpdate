@@ -2,7 +2,9 @@ package phoupraw.mcmod.cancelblockupdate.registry;
 
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -38,6 +40,22 @@ public final class CBUGameRules {
         CACHES = map;
     }
     public static void onChange(MinecraftServer server, GameRules.BooleanRule booleanRule) {
+        boolean newValue = booleanRule.get();
+        GameRules.Key<GameRules.BooleanRule> key = booleanRule.getType().getKey();
+        for (ServerWorld world : server.getWorlds()) CACHES.get(key).put(world, newValue);
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
+        buf.writeBoolean(newValue);
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
+        }
+    }
+
+    /**
+     @see CBUPacketTypes
+     */
+    @SuppressWarnings("unused")
+    public static void onChange_1_20(MinecraftServer server, GameRules.BooleanRule booleanRule) {
         boolean newValue = booleanRule.get();
         GameRules.Key<GameRules.BooleanRule> key = booleanRule.getType().getKey();
         for (ServerWorld world : server.getWorlds()) CACHES.get(key).put(world, newValue);

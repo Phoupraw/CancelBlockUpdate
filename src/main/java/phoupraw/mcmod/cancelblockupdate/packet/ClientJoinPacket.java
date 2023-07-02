@@ -4,7 +4,8 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.PacketByteBuf;
 import phoupraw.mcmod.cancelblockupdate.registry.CBUPacketTypes;
-
+/**
+ @see CBUPacketTypes */
 public class ClientJoinPacket implements FabricPacket {
 
     public static final ClientJoinPacket INSTANCE = new ClientJoinPacket();
