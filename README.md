@@ -1,4 +1,5 @@
 [![Modrinth](https://img.shields.io/modrinth/dt/cancel-block-update?logo=modrinth&label=&suffix=%20&style=flat&color=242629&labelColor=5ca424&logoColor=1c1c1c)](https://modrinth.com/mod/cancel-block-update)
+[![Curseforge](https://cf.way2muchnoise.eu/short_875996.svg)](https://www.curseforge.com/minecraft/mc-mods/cancel-block-update)
 ![Minecraft](https://img.shields.io/badge/Available%20for-MC%201.19~1.20.1-c70039)
 
 [![Fabric](https://cdn.discordapp.com/attachments/705864145169416313/969720133998239794/fabric_supported.png)](https://fabricmc.net/)
