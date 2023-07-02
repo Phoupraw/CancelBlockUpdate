@@ -4,13 +4,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AfterPlayerChange;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.Load;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,7 +20,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 import phoupraw.mcmod.cancelblockupdate.CancelBlockUpdate;
-import phoupraw.mcmod.cancelblockupdate.packet.BoolRulePacket;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,18 +44,17 @@ public final class CBUModInitializer implements ModInitializer {
         }
     }
 
-    /**
-     玩家转移到新世界后，客户端世界会被换新，导致缓存中的客户端世界失效，因此需要把新的客户端世界加入到缓存中。
-     @see AfterPlayerChange#afterChangeWorld
-     */
     private static void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
-        List<BoolRulePacket> packets = new LinkedList<>();
+        List<PacketByteBuf> bufs = new LinkedList<>();
         var server = Objects.requireNonNull(player.getServer(), "player=" + player);
         for (var key : CBURegistries.BOOL_RULE) {
-            packets.add(new BoolRulePacket(key, server.getGameRules().getBoolean(key)));
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
+            buf.writeBoolean(server.getGameRules().getBoolean(key));
+            bufs.add(buf);
         }
-        for (var packet : packets) {
-            ServerPlayNetworking.send(player, packet);
+        for (var buf : bufs) {
+            ServerPlayNetworking.send(player, CBUIdentifiers.CHANNEL, buf);
         }
     }
 
@@ -93,14 +92,16 @@ public final class CBUModInitializer implements ModInitializer {
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(CBUModInitializer::afterChangeWorld);
         CommandRegistrationCallback.EVENT.register(CBUModInitializer::register);
         ServerWorldEvents.LOAD.register(CBUModInitializer::onWorldLoad);
-        ServerPlayNetworking.registerGlobalReceiver(CBUPacketTypes.CLIENT_JOIN, (packet, player, responseSender) -> {
-            List<BoolRulePacket> packets = new LinkedList<>();
-            var server = Objects.requireNonNull(player.getServer(), "player=" + player);
+        ServerPlayNetworking.registerGlobalReceiver(CBUIdentifiers.CHANNEL, (server, player, handler, emptyBuf, responseSender) -> {
+            List<PacketByteBuf> bufs = new LinkedList<>();
             for (var key : CBURegistries.BOOL_RULE) {
-                packets.add(new BoolRulePacket(key, server.getGameRules().getBoolean(key)));
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeByte(CBURegistries.BOOL_RULE.getRawId(key));
+                buf.writeBoolean(server.getGameRules().getBoolean(key));
+                bufs.add(buf);
             }
-            for (var p : packets) {
-                ServerPlayNetworking.send(player, p);
+            for (var buf : bufs) {
+                responseSender.sendPacket(CBUIdentifiers.CHANNEL, buf);
             }
         });
     }
