@@ -8,8 +8,7 @@
     "MFluidState",
     "MGameRules",
     "MGameRules_Rule",
-    "MGameRules_Type",
-    "MixinItems"
+    "MGameRules_Type"
   ],
   "client": [
   ],
